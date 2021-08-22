@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  api:
+    ports:
+      - 5000:${API_PORT}
+    env_file: .env
+
+  db:
+    env_file: .env
