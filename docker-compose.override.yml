@@ -1,10 +1,26 @@
 version: "3.9"
 
+# This Compose file is used for development only!
+# Use docker-compose.prod.yml in production using
+# docker-compose -f docker-compose.yml \
+#   -f docker-compose.prod.yml \
+#   --env-file .env.prod \
+#   up -d
+
 services:
   api:
+    build:
+      context: ./api
+      target: development
     ports:
       - 5000:${API_PORT}
     env_file: .env
+    environment:
+      FLASK_ENV: development
+      FLASK_RUN_HOST: ${API_HOST}
+      FLASK_RUN_PORT: ${API_PORT}
+    volumes:
+      - ./api:/app
 
   db:
     env_file: .env

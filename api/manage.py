@@ -1,13 +1,12 @@
 from flask.cli import FlaskGroup
 
-from api.api import create_app, db
+from api import db, create_app
 
 cli = FlaskGroup(create_app=create_app)
 
 
-@cli.command('create-db')
-def create_db():
-    db.drop_all()
+@cli.command(short_help="Initialize the application's database.")
+def init_db():
     db.create_all()
     db.session.commit()
 

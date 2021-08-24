@@ -2,7 +2,6 @@ version: "3.9"
 
 services:
   api:
-    build: ./api
     depends_on:
       - db
     expose:
@@ -16,8 +15,6 @@ services:
         max-file: "3"
     volumes: 
       - db-data:/var/lib/postgresql/data
-      # copy the sql script to create tables
-      # - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
   db-data:

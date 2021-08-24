@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    ENV = 'production'
     DEBUG = False
     TESTING = False
     HOST = os.environ['API_HOST']
@@ -17,13 +18,12 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    FLASK_ENV = 'development'
+    ENV = 'development'
     DEVELOPMENT = True
     DEBUG = True
 
 
 class ProductionConfig(Config):
-    FLASK_ENV = 'production'
     DEBUG = False
 
 
@@ -31,7 +31,7 @@ class TestingConfig(Config):
     TESTING = True
 
 
-config = {
+config_types = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,
     'testing': TestingConfig,
@@ -40,9 +40,13 @@ config = {
 }
 
 
-def config_app(app):
-    configType = os.environ.get('API_CONFIG')
-    if configType not in config.keys():
-        configType = 'default'
+def current_config() -> Config:
+    config_type = os.environ.get('API_CONFIG')
+    if config_type not in config_types.keys():
+        config_type = 'default'
+    return config_types[config_type]
 
-    app.config.from_object(config[configType])
+
+def config_app(app):
+    config = current_config()
+    app.config.from_object(config)

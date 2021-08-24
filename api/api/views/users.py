@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-from sqlalchemy import select
+from sqlalchemy import select, desc
 
-from api.api import db
-from models import User
+from api import db
+from api.models.user import User
 
 blueprint = Blueprint('users', __name__, url_prefix='/users')
 
@@ -12,7 +12,7 @@ def get_users():
     page = request.args.get('page', default=1)
     page_size = request.args.get('pagesize')
 
-    sql = select(User).order_by(User.modified)
+    sql = select(User).order_by(desc(User.modified))
     if page_size and page_size > 0 and page >= 1:
         sql = sql.limit(page_size).offset((page - 1) * page_size)
 
@@ -25,9 +25,13 @@ def get_users():
 @blueprint.route('/', methods=['POST'])
 def create_user():
     try:
-        user = User.from_json(request.json or {})
+        if not request.is_json:
+            return "Invalid JSON body", 400
+
+        user = User.from_json(request.json)
         db.session.add(user)
         db.session.commit()
+
         return {'userId': user.user_id}, 201
     except KeyError as e:
         return str(e), 400
@@ -47,8 +51,11 @@ def update_user(user_id):
     if not user:
         return f'User {user_id} not found', 404
 
+    if not request.is_json:
+        return "Invalid JSON body", 400
+
     user.update(request.json)
-    db.session.commit
+    db.session.commit()
 
     return {'user': user.json}
 
@@ -60,5 +67,6 @@ def delete_user(user_id):
         return f'User {user_id} not found', 404
     
     db.session.delete(user)
+    db.session.commit()
     
     return '', 204

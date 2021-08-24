@@ -4,8 +4,8 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
-from api.api import db
-import util
+from api import db
+from api import util
 
 
 class User(db.Model):
@@ -18,10 +18,10 @@ class User(db.Model):
     last_name = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(), unique=True, nullable=False)
     phone = db.Column(db.String(), unique=True)
-    created = db.Column(db.DateTime(timezone=True),
-                        nullable=False, server_default=func.now())
-    modified = db.Column(db.DateTime(timezone=True),
-                         nullable=False, onupdate=func.now())
+    created = db.Column(db.DateTime(timezone=True), nullable=False,
+                        server_default=func.now())
+    modified = db.Column(db.DateTime(timezone=True), nullable=False,
+                         server_default=func.now(), onupdate=func.now())
 
     # Describes the json representation of this model in terms
     #  of the class's field names
@@ -51,7 +51,7 @@ class User(db.Model):
     def json(self) -> dict:
         user_json = {}
 
-        for json_key, attr in User.json_model:
+        for json_key, attr in User.json_model.items():
             user_json[json_key] = getattr(self, attr)
 
         return user_json
@@ -68,4 +68,5 @@ class User(db.Model):
         update_exclude = {'userId', 'created', 'modified'}
         model_to_update = util.without_keys(User.json_model, update_exclude)
         for json_key, attr in model_to_update.items():
-            setattr(self, attr, json[json_key])
+            if json_key in json.keys():
+                setattr(self, attr, json[json_key])
