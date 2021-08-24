@@ -1,7 +1,7 @@
 import os
 
 
-class Config(object):
+class Config:
     DEBUG = False
     TESTING = False
     HOST = os.environ['API_HOST']
