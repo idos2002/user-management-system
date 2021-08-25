@@ -59,14 +59,21 @@ class User(db.Model):
     @staticmethod
     def from_json(json: dict) -> User:
         try:
+            if 'user' in json.keys():
+                json = json['user']
+            
             return User(json['username'], json['firstName'],
                         json['lastName'], json['email'], json['phone'])
         except KeyError:
             raise KeyError("Missing fields in request's JSON")
 
     def update(self, json: dict):
+        if 'user' in json.keys():
+            json = json['user']
+        
         update_exclude = {'userId', 'created', 'modified'}
         model_to_update = util.without_keys(User.json_model, update_exclude)
+        
         for json_key, attr in model_to_update.items():
             if json_key in json.keys():
                 setattr(self, attr, json[json_key])
