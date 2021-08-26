@@ -3,6 +3,7 @@ Dockerfile
 .DS_Store
 .gitignore
 .dockerignore
+README.md
 
 /credentials
 /cache

@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from sqlalchemy import select, desc
+import dateutil.parser
 
 from api import db
 from api.models.user import User
@@ -10,11 +11,20 @@ blueprint = Blueprint('users', __name__, url_prefix='/users')
 @blueprint.route('/', methods=['GET'])
 def get_users():
     page = request.args.get('page', default=1)
-    page_size = request.args.get('pagesize')
+    page_size = request.args.get('pageSize')
+    start_time = request.args.get('startTime')
 
     sql = select(User).order_by(desc(User.modified))
+
     if page_size and page_size > 0 and page >= 1:
         sql = sql.limit(page_size).offset((page - 1) * page_size)
+    
+    if start_time:
+        try:
+            start_time = dateutil.parser.isoparse(start_time)
+            sql = sql.where(User.created <= start_time)
+        except ValueError:
+            pass
 
     users = db.session.execute(sql).scalars().all()
     users_json = [user.json for user in users]
