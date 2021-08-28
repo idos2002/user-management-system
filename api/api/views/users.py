@@ -15,20 +15,20 @@ def get_users():
     # Parse URL parameters
     page = request.args.get('page', default=1)
     page_size = request.args.get('pageSize')
-    start_time = request.args.get('startTime')
+    before = request.args.get('before')
 
     try:
-        start_time = dateutil.parser.isoparse(start_time)
+        before = dateutil.parser.isoparse(before)
     except (ValueError, TypeError):
-        start_time = None
+        before = None
 
     # Set X-Total-Count header to the total number of users
     # in the requested data set (all users with creation time
     # before given time)
     sql = select(func.count(User.user_id))
 
-    if start_time:
-        sql = sql.where(User.created <= start_time)
+    if before:
+        sql = sql.where(User.created <= before)
 
     user_count = db.session.execute(sql).scalar_one()
     headers = {
@@ -47,8 +47,8 @@ def get_users():
     except (ValueError, TypeError):
         pass
 
-    if start_time:
-        sql = sql.where(User.created <= start_time)
+    if before:
+        sql = sql.where(User.created <= before)
 
     users = db.session.execute(sql).scalars().all()
     users_json = [user.json for user in users]

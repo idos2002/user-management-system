@@ -8,6 +8,20 @@ from api import db
 from api import util
 
 
+# Describes the json representation of this model in terms
+#  of the class's field names
+json_model = {
+    'userId': 'user_id',
+    'username': 'username',
+    'firstName': 'first_name',
+    'lastName': 'last_name',
+    'email': 'email',
+    'phone': 'phone',
+    'created': 'created',
+    'modified': 'modified'
+}
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -22,19 +36,6 @@ class User(db.Model):
                         server_default=func.now())
     modified = db.Column(db.DateTime(timezone=True), nullable=False,
                          server_default=func.now(), onupdate=func.now())
-
-    # Describes the json representation of this model in terms
-    #  of the class's field names
-    json_model = {
-        'userId': 'user_id',
-        'username': 'username',
-        'firstName': 'first_name',
-        'lastName': 'last_name',
-        'email': 'email',
-        'phone': 'phone',
-        'created': 'created',
-        'modified': 'modified'
-    }
 
     def __init__(self, username: str, first_name: str, last_name: str,
                  email: str, phone: str):
@@ -51,7 +52,7 @@ class User(db.Model):
     def json(self) -> dict:
         user_json = {}
 
-        for json_key, attr in User.json_model.items():
+        for json_key, attr in json_model.items():
             user_json[json_key] = getattr(self, attr)
 
         return user_json
@@ -61,7 +62,7 @@ class User(db.Model):
         try:
             if 'user' in json.keys():
                 json = json['user']
-            
+
             return User(json['username'], json['firstName'],
                         json['lastName'], json['email'], json['phone'])
         except KeyError:
@@ -70,10 +71,10 @@ class User(db.Model):
     def update(self, json: dict):
         if 'user' in json.keys():
             json = json['user']
-        
+
         update_exclude = {'userId', 'created', 'modified'}
-        model_to_update = util.without_keys(User.json_model, update_exclude)
-        
+        model_to_update = util.without_keys(json_model, update_exclude)
+
         for json_key, attr in model_to_update.items():
             if json_key in json.keys():
                 setattr(self, attr, json[json_key])
