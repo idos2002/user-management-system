@@ -2,10 +2,20 @@ version: "3.9"
 
 services:
   api:
+    build:
+      context: ./api
     depends_on:
       - db
     expose:
       - "${API_PORT}"
+  
+  web:
+    build:
+      context: ./web
+    depends_on:
+      - api
+    expose:
+      - ${WEB_SERVER_PORT}
 
   db:
     image: postgres:13.4-alpine
@@ -13,7 +23,7 @@ services:
       options:
         max-size: 10m
         max-file: "3"
-    volumes: 
+    volumes:
       - db-data:/var/lib/postgresql/data
 
 volumes:

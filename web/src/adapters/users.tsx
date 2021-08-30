@@ -2,28 +2,36 @@ import api from 'adapters/xhr';
 
 export type UUID = string
 interface UserBase {
-    userId: UUID,
-    username: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phone?: string | null
+    userId: UUID;
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string | null;
 }
 
 type IsoDateString = string
 interface UserJson extends UserBase {
-    created: IsoDateString,
-    modified: IsoDateString
+    created: IsoDateString;
+    modified: IsoDateString;
 }
 
 export interface UserResponse extends UserBase {
-    created: Date,
-    modified: Date
+    created: Date;
+    modified: Date;
 }
 
 export type UserPost = Omit<UserBase, 'userId'>;
 
 export type UserUpdate = Omit<Partial<UserBase>, 'userId'>;
+
+export interface UsersPagination {
+    totalCount: number;
+    page?: number;
+    pageSize?: number;
+    before?: Date;
+    users: UserResponse[];
+}
 
 function convertIsoDateTimeStringToDate(isoDateString: IsoDateString): Date {
     const timestamp = Date.parse(isoDateString ?? '');
@@ -41,8 +49,9 @@ function convertJsonToUser(userJson: UserJson): UserResponse {
     }
 }
 
-export async function getUsers(page?: number, pageSize?: number, before?: Date): Promise<UserResponse[]> {
+export async function getUsers(page?: number, pageSize?: number, before?: Date): Promise<UsersPagination> {
     try {
+        page = page !== undefined ? page + 1 : page;
         const response = await api.get('/users', {
             params: {
                 page,
@@ -50,11 +59,23 @@ export async function getUsers(page?: number, pageSize?: number, before?: Date):
                 before: before?.toISOString()
             }
         });
-        const json = JSON.parse(response.data ?? '');
-        const usersJson: UserJson[] = json.users;
-        return usersJson.map(convertJsonToUser);
+
+        const totalCount: number = parseInt(response.headers['x-total-count']);
+        const usersJson: UserJson[] = response.data.users;
+        const users = usersJson.map(convertJsonToUser);
+
+        return {
+            totalCount,
+            page,
+            pageSize,
+            before,
+            users
+        };
     } catch (error) {
-        return [];
+        return {
+            totalCount: 0,
+            users: []
+        };
     }
 }
 

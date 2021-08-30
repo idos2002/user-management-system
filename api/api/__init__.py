@@ -12,6 +12,13 @@ def create_app():
 
     db.init_app(app)
 
+    # @app.after_request
+    # def add_cors(response):
+    #     response.headers['Access-Control-Allow-Origin'] = '*'
+    #     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
+    #     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, X-Total-Count, Content-Type, Accept'
+    #     return response
+
     # Because there is no global Flask app instance,
     # in order for views to access the current_app,
     # we need to import and register them using the
