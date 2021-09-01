@@ -52,7 +52,7 @@ function convertJsonToUser(userJson: UserJson): UserResponse {
 export async function getUsers(page?: number, pageSize?: number, before?: Date): Promise<UsersPagination> {
     try {
         page = page !== undefined ? page + 1 : page;
-        const response = await api.get('/users', {
+        const response = await api.get('/users/', {
             params: {
                 page,
                 pageSize,
@@ -92,7 +92,7 @@ export async function getUser(id: UUID): Promise<UserResponse | null> {
 
 export async function postUser(userPost: UserPost): Promise<boolean> {
     try {
-        await api.post('/users', userPost);
+        await api.post('/users/', userPost);
         return true;
     } catch (error) {
         return false;

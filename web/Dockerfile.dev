@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+
+# This Dockerfile should be used in a development environment only!
+# In production, teh app will be built and served statically by the
+# NGINX web server.
+
+FROM node:16.8.0
+
+WORKDIR /app
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
+
+# install app dependencies
+COPY package.json package-lock.json ./
+RUN npm install --silent
+
+COPY . .
+
+CMD ["npm", "start"]

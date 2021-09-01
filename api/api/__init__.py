@@ -10,14 +10,10 @@ def create_app():
     app = Flask(__name__)
     config.config_app(app)
 
-    db.init_app(app)
+    # see: https://stackoverflow.com/questions/33241050/trailing-slash-triggers-404-in-flask-path-rule
+    app.url_map.strict_slashes = False
 
-    # @app.after_request
-    # def add_cors(response):
-    #     response.headers['Access-Control-Allow-Origin'] = '*'
-    #     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
-    #     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, X-Total-Count, Content-Type, Accept'
-    #     return response
+    db.init_app(app)
 
     # Because there is no global Flask app instance,
     # in order for views to access the current_app,

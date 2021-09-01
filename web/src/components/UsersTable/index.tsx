@@ -6,40 +6,12 @@ import UsersTableBody from './UsersTableBody';
 import UsersTablePagination from './UsersTablePagination';
 import { getUsers, UserResponse } from 'adapters/users';
 
-const rows: UserResponse[] = [
-  {
-    userId: '123e4567-e89b-12d3-a456-426614174000',
-    username: 'johndoe123',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+972521234567',
-    created: new Date(),
-    modified: new Date()
-  },
-  {
-    userId: '123e4567-e89b-12d3-a852-426614174000',
-    username: 'janedoe123',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'jane.doe@example.com',
-    phone: '+972531234567',
-    created: new Date(),
-    modified: new Date()
-  }
-];
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: '100%',
-      marginBottom: theme.spacing(2)
-    },
-    container: {
-      maxHeight: 400
+      margin: `${theme.spacing(2)}px ${theme.spacing(4)}px`
     },
     table: {
-      minWidth: 750,
       whiteSpace: 'nowrap'
     },
   })
@@ -77,8 +49,8 @@ export default function UsersTable() {
   };
 
   return (
-    <Paper className={classes.root}>
-      <TableContainer className={classes.container}>
+    <Paper className={classes.root} variant="outlined">
+      <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="Users Table">
           <UsersTableHead />
           <UsersTableBody

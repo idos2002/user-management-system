@@ -9,11 +9,10 @@ services:
     expose:
       - "${API_PORT}"
   
-  web:
-    build:
-      context: ./web
+  nginx:
     depends_on:
       - api
+      - web
     expose:
       - ${WEB_SERVER_PORT}
 
