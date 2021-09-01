@@ -1,10 +1,10 @@
 import Layout from 'components/Layout'
-import UsersTable from 'components/UsersTable';
+import Users from 'pages/Users';
 
 export default function App() {
   return (
     <Layout>
-      <UsersTable />
+      <Users />
     </Layout>
   );
 }
