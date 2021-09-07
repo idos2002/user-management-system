@@ -1,7 +1,8 @@
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
 import { AppBar, Toolbar, Typography, Tooltip, IconButton } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import { AppContext, throwAppContextUndefined } from 'contexts/AppContext';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -13,7 +14,8 @@ const useStyles = makeStyles((theme: Theme) =>
             flexGrow: 1
         },
         page: {
-            width: '100%'
+            width: '100%',
+            height: '100%'
         },
         appBarSpacer: theme.mixins.toolbar
     })
@@ -24,8 +26,11 @@ export interface LayoutProps {
 }
 
 export default function Layout(props: LayoutProps) {
-    const classes = useStyles();
     const { children } = props;
+    const classes = useStyles();
+    const { setLastRefresh } = useContext(AppContext) ?? throwAppContextUndefined();
+
+    const handleRefresh = () => setLastRefresh(new Date());
 
     return (
         <div>
@@ -35,7 +40,7 @@ export default function Layout(props: LayoutProps) {
                         User Management System
                     </Typography>
                     <Tooltip title="Refresh">
-                        <IconButton color="inherit">
+                        <IconButton color="inherit" onClick={handleRefresh}>
                             <RefreshIcon />
                         </IconButton>
                     </Tooltip>

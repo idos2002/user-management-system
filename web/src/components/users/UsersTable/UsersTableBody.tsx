@@ -5,9 +5,6 @@ import { format as formatDate } from 'date-fns';
 
 const useStyles = makeStyles(() =>
   createStyles({
-    root: {
-      whiteSpace: 'nowrap',
-    },
     uuid: {
       maxWidth: '15ch',
       overflow: 'hidden',
@@ -30,7 +27,7 @@ export default function UsersTableBody(props: UsersTableBodyProps) {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, count - page * rowsPerPage);
 
   return (
-    <TableBody className={classes.root}>
+    <TableBody>
       {currentPageUsers.map(user => (
         <TableRow key={user.userId}>
           <TableCell className={classes.uuid}>{user.userId}</TableCell>

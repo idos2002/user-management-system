@@ -1,18 +1,15 @@
-import { Typography, Button } from '@material-ui/core';
+import { useState } from 'react';
+import { Typography, Button, Box } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import UsersTable from 'components/UsersTable';
+import CreateUserDialog from 'components/users/dialogs/CreateUserDialog';
+import UsersTable from 'components/users/UsersTable';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        titleContainer: {
-            display: 'flex',
-            flexFlow: 'row wrap',
-            margin: `${theme.spacing(3)}px ${theme.spacing(4)}px`
-        },
         title: {
             flex: '1 0'
         },
-        titleButton: {
+        headerButton: {
             flex: '0 0',
             whiteSpace: 'nowrap',
             minWidth: 'max-content'
@@ -22,18 +19,28 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Users() {
     const classes = useStyles();
+    const [openCreateUserDialog, setOpenCreateUserDialog] = useState(false);
 
     return (
-        <div>
-            <div className={classes.titleContainer}>
+        <Box m={4} display="flex" flexDirection="column">
+            <Box mb={2} display="flex" flexDirection="row">
                 <Typography className={classes.title} variant="h4">
                     Users
                 </Typography>
-                <Button className={classes.titleButton} variant="outlined">
-                    create User
+                <Button
+                    className={classes.headerButton}
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => setOpenCreateUserDialog(true)}
+                >
+                    Create User
                 </Button>
-            </div>
+                <CreateUserDialog
+                    open={openCreateUserDialog}
+                    onClose={() => setOpenCreateUserDialog(false)}
+                />
+            </Box>
             <UsersTable />
-        </div>
+        </Box>
     );
 }

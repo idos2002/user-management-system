@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 import dateutil.parser
 
 from api import db
+from api.errors import parse_users_integrity_error
 from api.models.user import User
 
 blueprint = Blueprint('users', __name__, url_prefix='/users')
@@ -56,6 +57,14 @@ def get_users():
     return {'users': users_json}, headers
 
 
+@blueprint.route('/<uuid:user_id>', methods=['GET'])
+def get_user(user_id):
+    user = db.session.get(User, user_id)
+    if not user:
+        return f'User {user_id} not found', 404
+    return {'user': user.json}
+
+
 @blueprint.route('/', methods=['POST'])
 def create_user():
     try:
@@ -70,15 +79,8 @@ def create_user():
     except KeyError as e:
         return str(e), 400
     except IntegrityError as e:
-        return f"User's usersname, email and phone number must all be unique: {e.orig.diag.message_detail}", 409
-
-
-@blueprint.route('/<uuid:user_id>', methods=['GET'])
-def get_user(user_id):
-    user = db.session.get(User, user_id)
-    if not user:
-        return f'User {user_id} not found', 404
-    return {'user': user.json}
+        error_response = parse_users_integrity_error(e)
+        return error_response.json, error_response.status
 
 
 @blueprint.route('/<uuid:user_id>', methods=['PUT'])
@@ -96,7 +98,8 @@ def update_user(user_id):
 
         return {'user': user.json}
     except IntegrityError as e:
-        return f"User's usersname, email and phone number must all be unique: {e.orig.diag.message_detail}", 409
+        error_response = parse_users_integrity_error(e)
+        return error_response.json, error_response.status
 
 
 @blueprint.route('/<uuid:user_id>', methods=['DELETE'])

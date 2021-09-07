@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import api from 'adapters/xhr';
 
 export type UUID = string
@@ -31,6 +32,26 @@ export interface UsersPagination {
     pageSize?: number;
     before?: Date;
     users: UserResponse[];
+}
+
+export interface UnknownUserErrorResponse { }
+
+export interface UserErrorResponse {
+    status: number;
+    error: string;
+    message: string;
+    details?: {
+        cause?: string[];
+    };
+}
+
+export function isUserErrorResponse(
+    response: UserErrorResponse | UnknownUserErrorResponse | null
+): response is UserErrorResponse {
+    const userErrorResponse = response as UserErrorResponse;
+    return userErrorResponse.status !== undefined &&
+        userErrorResponse.error !== undefined &&
+        userErrorResponse.message !== undefined;
 }
 
 function convertIsoDateTimeStringToDate(isoDateString: IsoDateString): Date {
@@ -82,29 +103,43 @@ export async function getUsers(page?: number, pageSize?: number, before?: Date):
 export async function getUser(id: UUID): Promise<UserResponse | null> {
     try {
         const response = await api.get(`/users/${id}`);
-        const json = JSON.parse(response.data ?? '');
-        const userJson: UserJson = json.user;
-        return convertJsonToUser(userJson);
+        const user: UserJson = response.data.user;
+        return convertJsonToUser(user);
     } catch (error) {
         return null;
     }
 }
 
-export async function postUser(userPost: UserPost): Promise<boolean> {
+export async function postUser(
+    userPost: UserPost
+): Promise<UserErrorResponse | UnknownUserErrorResponse | null> {
     try {
         await api.post('/users/', userPost);
-        return true;
+        return null;
     } catch (error) {
-        return false;
+        const err = error as AxiosError;
+        const response = err.response;
+        
+        if (!response) return {} as UnknownUserErrorResponse;
+
+        return response.data as UserErrorResponse
     }
 }
 
-export async function updateUser(id: UUID, userUpdate: UserUpdate): Promise<boolean> {
+export async function updateUser(
+    id: UUID,
+    userUpdate: UserUpdate
+): Promise<UserErrorResponse | UnknownUserErrorResponse | null> {
     try {
         await api.put(`/users/${id}`, userUpdate);
-        return true;
+        return null;
     } catch (error) {
-        return false;
+        const err = error as AxiosError;
+        const response = err.response;
+
+        if (!response) return {} as UnknownUserErrorResponse;
+
+        return response.data as UserErrorResponse
     }
 }
 

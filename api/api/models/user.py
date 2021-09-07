@@ -22,6 +22,13 @@ json_model = {
 }
 
 
+def get_user_json_key(attr_name: str) -> str:
+    for json_key, attr in json_model.items():
+        if attr == attr_name:
+            return json_key
+    return None
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -38,7 +45,7 @@ class User(db.Model):
                          server_default=func.now(), onupdate=func.now())
 
     def __init__(self, username: str, first_name: str, last_name: str,
-                 email: str, phone: str):
+                 email: str, phone: str | None = None):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
@@ -64,7 +71,7 @@ class User(db.Model):
                 json = json['user']
 
             return User(json['username'], json['firstName'],
-                        json['lastName'], json['email'], json['phone'])
+                        json['lastName'], json['email'], json.get('phone'))
         except KeyError:
             raise KeyError("Missing fields in request's JSON")
 
