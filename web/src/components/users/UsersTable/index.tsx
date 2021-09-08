@@ -6,6 +6,7 @@ import UsersTableBody from './UsersTableBody';
 import UsersTablePagination from './UsersTablePagination';
 import { getUsers, UserResponse } from 'adapters/users';
 import { AppContext, throwAppContextUndefined } from 'contexts/AppContext';
+import EditUserDialog from '../dialogs/EditUserDialog';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -36,6 +37,7 @@ export default function UsersTable() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPageUsers, setCurrentPageUsers] = useState<UserResponse[]>([]);
+  const [currentlyEditedUser, setCurrentlyEditedUser] = useState<UserResponse | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,31 +61,48 @@ export default function UsersTable() {
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
+  const handleEditUser = (user: UserResponse) => {
+    setCurrentlyEditedUser(user);
+  };
+
+  const handleDeleteUser = (user: UserResponse) => {
+    
+  };
+
   return (
-    <Paper variant="outlined">
-      <TableContainer>
-        <Table
-          className={classes.table}
-          aria-label="Users Table"
-          stickyHeader
-        >
-          <UsersTableHead headCells={headCells} />
-          <UsersTableBody
-            count={totalCount}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            currentPageUsers={currentPageUsers}
-          />
-        </Table>
-      </TableContainer>
-      <UsersTablePagination
-        count={totalCount}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={rowsPerPageOptions}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+    <div>
+      <Paper variant="outlined">
+        <TableContainer>
+          <Table
+            className={classes.table}
+            aria-label="Users Table"
+            stickyHeader
+          >
+            <UsersTableHead headCells={headCells} />
+            <UsersTableBody
+              count={totalCount}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              currentPageUsers={currentPageUsers}
+              onEditUser={handleEditUser}
+              onDeleteUser={handleDeleteUser}
+            />
+          </Table>
+        </TableContainer>
+        <UsersTablePagination
+          count={totalCount}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={rowsPerPageOptions}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+      <EditUserDialog
+        open={Boolean(currentlyEditedUser)}
+        user={currentlyEditedUser ?? undefined}
+        onClose={() => setCurrentlyEditedUser(null)}
       />
-    </Paper>
+    </div>
   );
 }

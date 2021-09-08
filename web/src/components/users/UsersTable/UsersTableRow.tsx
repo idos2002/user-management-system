@@ -17,10 +17,12 @@ const useStyles = makeStyles(() =>
 
 export interface UsersTableRowProps {
     user: UserResponse;
+    onEdit: (user: UserResponse) => void;
+    onDelete: (user: UserResponse) => void;
 }
 
 export default function UsersTableRow(props: UsersTableRowProps) {
-    const { user } = props;
+    const { user, onEdit, onDelete } = props;
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -32,16 +34,18 @@ export default function UsersTableRow(props: UsersTableRowProps) {
         setAnchorEl(null);
     };
 
-    const handleEditUser = () => {
+    const handleEdit = () => {
         handleCloseActionsMenu();
+        onEdit(user);
     };
 
-    const handleDeleteUser = () => {
+    const handleDelete = () => {
         handleCloseActionsMenu();
+        onDelete(user);
     };
 
     return (
-        <TableRow key={user.userId}>
+        <TableRow>
             <TableCell className={classes.uuid}>{user.userId}</TableCell>
             <TableCell>{user.username}</TableCell>
             <TableCell>{user.firstName}</TableCell>
@@ -73,8 +77,8 @@ export default function UsersTableRow(props: UsersTableRowProps) {
                     open={Boolean(anchorEl)}
                     onClose={handleCloseActionsMenu}
                 >
-                    <MenuItem onClick={handleEditUser}>Edit</MenuItem>
-                    <MenuItem onClick={handleDeleteUser}>Delete</MenuItem>
+                    <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                    <MenuItem onClick={handleDelete}>Delete</MenuItem>
                 </Menu>
             </TableCell>
         </TableRow>

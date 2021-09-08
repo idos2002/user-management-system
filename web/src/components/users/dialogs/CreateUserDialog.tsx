@@ -1,5 +1,5 @@
-import { postUser, UserPost } from 'adapters/users';
-import BaseUserDetailsDialog from './BaseUserDetailsDialog';
+import { postUser } from 'adapters/users';
+import BaseUserDetailsDialog, { UserDetailsFormState } from './BaseUserDetailsDialog';
 
 export interface CreateUserDialogProps {
     open: boolean;
@@ -9,7 +9,7 @@ export interface CreateUserDialogProps {
 export default function CreateUserDialog(props: CreateUserDialogProps) {
     const { open, onClose } = props;
 
-    const handleSubmit = (formState: UserPost) => {
+    const handleSubmit = (formState: UserDetailsFormState) => {
         return postUser({
             ...formState,
             phone: formState.phone || undefined

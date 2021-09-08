@@ -2,7 +2,7 @@ import { FormEvent, ReactNode, useContext, useState, useEffect } from 'react';
 import { Dialog, DialogContent, Grid, TextField, Button, DialogTitle, Typography, IconButton } from '@material-ui/core';
 import { Theme, makeStyles, createStyles } from '@material-ui/core/styles'
 import { Close as CloseIcon } from '@material-ui/icons';
-import { isUserErrorResponse, UserPost, UserErrorResponse, UnknownUserErrorResponse, UserUpdate } from 'adapters/users';
+import { isUserErrorResponse, UserResponse, UserPost, UserErrorResponse, UnknownUserErrorResponse, UUID } from 'adapters/users';
 import { AppContext, throwAppContextUndefined } from 'contexts/AppContext';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -21,12 +21,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface BaseUserDialogDetailsTitleProps {
     id: string;
-    onClose: () => void;
     children: ReactNode;
+    onClose: () => void;
 }
 
 function BaseUserDetailsDialogTitle(props: BaseUserDialogDetailsTitleProps) {
-    const { id, onClose } = props;
+    const { id, children, onClose } = props;
     const classes = useStyles();
 
     return (
@@ -36,7 +36,7 @@ function BaseUserDetailsDialogTitle(props: BaseUserDialogDetailsTitleProps) {
             disableTypography
         >
             <Typography variant="h6">
-                Create User
+                {children}
             </Typography>
             <IconButton
                 aria-label="close"
@@ -53,11 +53,10 @@ export type UserDetailsFormState = Required<UserPost>;
 
 export interface BaseUserDetailsDialogProps {
     title: string;
+    user?: UserResponse;
     open: boolean;
-    requiredFields?: boolean;
-    onOpen?: () => Promise<UserDetailsFormState>;
     onClose: () => void;
-    onSubmit: (formState: UserDetailsFormState) => Promise<UserErrorResponse | UnknownUserErrorResponse | null>;
+    onSubmit: (formState: UserDetailsFormState, userId?: UUID) => Promise<UserErrorResponse | UnknownUserErrorResponse | null>;
 }
 
 const initialFormState: UserDetailsFormState = {
@@ -70,19 +69,19 @@ const initialFormState: UserDetailsFormState = {
 
 export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps) {
     const context = useContext(AppContext) ?? throwAppContextUndefined();
-    const { title, open, requiredFields, onOpen, onClose, onSubmit } = props;
+    const { title, user, open, onClose, onSubmit } = props;
     const [formState, setFormState] = useState(initialFormState);
     const [errorCause, setErrorCause] = useState('');
 
     useEffect(() => {
-        if (open && onOpen) {
-            const updateFormState = async () => {
-                const updatedFormState = await onOpen();
-                setFormState(updatedFormState);
-            }
-            updateFormState();
+        if (open && user) {
+            const updatedFormState = {
+                ...user,
+                phone: user.phone ?? ''
+            };
+            setFormState(updatedFormState);
         }
-    }, [open])
+    }, [open]);
 
     const appendFormState = (formProps: Partial<UserDetailsFormState>) => setFormState({
         ...formState,
@@ -93,12 +92,12 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
         onClose();
         setFormState(initialFormState);
         setErrorCause('');
-    }
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const response = await onSubmit(formState);
+        const response = await onSubmit(formState, user?.userId);
 
         if (response === null) { // user was posted
             // close dialog and refresh app
@@ -128,7 +127,11 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
                 {title}
             </BaseUserDetailsDialogTitle>
             <DialogContent dividers>
-                <form onSubmit={handleSubmit} autoComplete="off">
+                <form
+                    onSubmit={handleSubmit}
+                    autoComplete="off"
+                    spellCheck="false"
+                >
                     <Grid container
                         spacing={2}
                         justifyContent="center"
@@ -142,7 +145,7 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
                                 fullWidth
                                 value={formState.username}
                                 onChange={e => appendFormState({ username: e.target.value })}
-                                required={requiredFields}
+                                required
                                 autoFocus
                                 error={errorCause === 'username'}
                                 helperText={errorCause === 'username'
@@ -158,7 +161,7 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
                                 fullWidth
                                 value={formState.firstName}
                                 onChange={e => appendFormState({ firstName: e.target.value })}
-                                required={requiredFields}
+                                required
                             />
                         </Grid>
                         <Grid item xs={6}>
@@ -169,7 +172,7 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
                                 fullWidth
                                 value={formState.lastName}
                                 onChange={e => appendFormState({ lastName: e.target.value })}
-                                required={requiredFields}
+                                required
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -181,7 +184,7 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
                                 fullWidth
                                 value={formState.email}
                                 onChange={e => appendFormState({ email: e.target.value })}
-                                required={requiredFields}
+                                required
                                 error={errorCause === 'email'}
                                 helperText={errorCause === 'email'
                                     ? "This email address is already used"

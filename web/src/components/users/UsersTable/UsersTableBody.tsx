@@ -7,17 +7,23 @@ export interface UsersTableBodyProps {
   page: number;
   rowsPerPage: number;
   currentPageUsers: UserResponse[];
+  onEditUser: (user: UserResponse) => void;
+  onDeleteUser: (user: UserResponse) => void;
 }
 
 export default function UsersTableBody(props: UsersTableBodyProps) {
-  const { count, page, rowsPerPage, currentPageUsers } = props;
+  const { count, page, rowsPerPage, currentPageUsers, onEditUser, onDeleteUser } = props;
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, count - page * rowsPerPage);
 
   return (
     <TableBody>
       {currentPageUsers.map(user => (
-        <UsersTableRow user={user} />
+        <UsersTableRow
+          key={user.userId}
+          user={user}
+          onEdit={onEditUser}
+          onDelete={onDeleteUser} />
       ))}
       {emptyRows > 0 && (
         <TableRow style={{ height: 53 * emptyRows }}>
