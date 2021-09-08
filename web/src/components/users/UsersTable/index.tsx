@@ -7,6 +7,7 @@ import UsersTablePagination from './UsersTablePagination';
 import { getUsers, UserResponse } from 'adapters/users';
 import { AppContext, throwAppContextUndefined } from 'contexts/AppContext';
 import EditUserDialog from '../dialogs/EditUserDialog';
+import DeleteUserDialog from '../dialogs/DeleteUserDialog';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -38,6 +39,7 @@ export default function UsersTable() {
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
   const [currentPageUsers, setCurrentPageUsers] = useState<UserResponse[]>([]);
   const [currentlyEditedUser, setCurrentlyEditedUser] = useState<UserResponse | null>(null);
+  const [currentlyDeletedUser, setCurrentlyDeletedUser] = useState<UserResponse | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +68,7 @@ export default function UsersTable() {
   };
 
   const handleDeleteUser = (user: UserResponse) => {
-    
+    setCurrentlyDeletedUser(user);
   };
 
   return (
@@ -99,9 +101,14 @@ export default function UsersTable() {
         />
       </Paper>
       <EditUserDialog
-        open={Boolean(currentlyEditedUser)}
         user={currentlyEditedUser ?? undefined}
+        open={Boolean(currentlyEditedUser)}
         onClose={() => setCurrentlyEditedUser(null)}
+      />
+      <DeleteUserDialog
+        user={currentlyDeletedUser ?? undefined}
+        open={Boolean(currentlyDeletedUser)}
+        onClose={() => setCurrentlyDeletedUser(null)}
       />
     </div>
   );

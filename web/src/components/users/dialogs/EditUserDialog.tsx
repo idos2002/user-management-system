@@ -18,7 +18,7 @@ export default function EditUserDialog(props: EditUserDialogProps) {
 
     return await updateUser(userId, {
       ...formState,
-      phone: formState.phone || undefined
+      phone: formState.phone || null
     });
   };
 
