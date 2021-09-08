@@ -24,6 +24,7 @@ const headCells: HeadCell[] = [
   { key: 'phone', label: 'Phone' },
   { key: 'created', label: 'Created' },
   { key: 'modified', label: 'Last Update' },
+  { key: "userActionsMenu", label: "" }
 ];
 
 const rowsPerPageOptions: number[] = [5, 10, 15, 20, 25];

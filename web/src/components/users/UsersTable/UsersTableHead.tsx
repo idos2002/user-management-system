@@ -2,7 +2,7 @@ import { TableHead, TableRow, TableCell } from '@material-ui/core';
 import { UserResponse } from 'adapters/users';
 
 export interface HeadCell {
-  key: keyof UserResponse;
+  key: keyof UserResponse | 'userActionsMenu';
   label: string;
 }
 
@@ -12,7 +12,7 @@ export interface UsersTableHeadProps {
 
 export default function UsersTableHead(props: UsersTableHeadProps) {
   const { headCells } = props;
-  
+
   return (
     <TableHead>
       <TableRow>
