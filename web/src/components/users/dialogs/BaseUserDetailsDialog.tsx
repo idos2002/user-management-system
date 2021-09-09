@@ -81,7 +81,7 @@ export default function BaseUserDetailsDialog(props: BaseUserDetailsDialogProps)
             };
             setFormState(updatedFormState);
         }
-    }, [open]);
+    }, [open, user]);
 
     const appendFormState = (formProps: Partial<UserDetailsFormState>) => setFormState({
         ...formState,
